@@ -1,0 +1,114 @@
+
+<!-- STYLES-->
+<% label_style = "text-md font-semibold text-gray-700" %>
+
+<% input_style = "w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                transition duration-200" %>
+
+
+<div id="userModal" class="hidden fixed inset-0 flex items-center justify-center bg-black/50  backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6 relative">
+    <button 
+      onclick="handleCloseModal()" 
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+    >
+      ✕
+    </button>
+
+    <h2 class="text-2xl font-bold mb-4">User</h2>
+
+    <% if @user && @user.errors.any? %>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <h2 class="font-bold mb-2">
+        <%= pluralize(@user.errors.count, "erro") %> impediram o salvamento:
+        </h2>
+        <ul class="list-disc pl-5">
+        <% @user.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+        <% end %>
+        </ul>
+    </div>
+    <% end %>
+
+    <%= form_with model: @user, local: true do |f| %>
+
+        <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1">
+                <%= f.label :name, "Nome", class: label_style %>
+                <%= f.text_field :name,
+                    class: input_style %>
+            </div>
+
+             <div class="flex flex-col gap-1">
+                <%= f.label :email, "Email", class: label_style %>
+                <%= f.email_field :email,
+                    placeholder: "ex: usuariosistema@gmail.com",
+                    class: input_style %>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <%= f.label :cpf, "CPF", class: label_style %>
+                <%= f.text_field :cpf,
+                    placeholder: "ex: 123.456.789-00",
+                    class: input_style %>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <%= f.label :role, "Role", class: label_style %>
+                <%= f.text_field :role,
+                    placeholder: "ex: admin",
+                    class: input_style %>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <%= f.label :salary, "Salary", class: label_style %>
+                <%= f.number_field :salary,
+                    placeholder: "ex: 5000.00",
+                    step: "0.01",
+                    class: input_style %>
+            </div>
+
+            <div class="flex justify-end mt-4">
+                <%= f.submit "Create User", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer " %>
+                <button type="button" onclick="handleCloseModal()" class="ml-2 bg-gray-500 hover:bg-gray-700
+                 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                    Cancel
+                </button>
+            </div>
+        </div>
+        
+    <% end%>
+
+  </div>
+</div>
+<script>
+    function handleCloseModal() {
+      const modal = document.getElementById("userModal");
+            modal.classList.toggle("hidden");
+    }
+
+    function cpfMask(value) {
+    return value
+      .replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const cpfInput = document.querySelector("input[name='user[cpf]']")
+
+    cpfInput.addEventListener("input", (e) => {
+      e.target.value = cpfMask(e.target.value)
+    })
+  })
+  
+</script>
+
+<script>
+document.querySelector("form").addEventListener("submit", function () {
+  const cpfInput = document.querySelector("input[name='user[cpf]']")
+  cpfInput.value = cpfInput.value.replace(/\D/g, "")
+})
+</script>
