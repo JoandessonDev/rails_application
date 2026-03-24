@@ -16,11 +16,12 @@ COPY Gemfile Gemfile.lock ./
 # Instalar gems
 RUN bundle install
 
+# Instalar Foreman
+RUN gem install foreman
+
 # Copiar resto do projeto
 COPY . .
 
-# Expor porta
 EXPOSE 3000
 
-# Rodar servidor
 CMD ["bash", "-c", "rm -f tmp/pids/server.pid && bin/dev"]
