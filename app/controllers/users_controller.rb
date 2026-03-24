@@ -1,9 +1,13 @@
 class UsersController < ApplicationController
-
+   before_action :set_user, only: [:edit, :update, :destroy]
 
   def index
-    @users = User.all
+    @users = User.order(:name)
     @user = User.new
+  end
+
+  def new
+    @user = User.new 
   end
 
   def create
@@ -17,9 +21,25 @@ class UsersController < ApplicationController
     end
   end
 
-  def new
-    @user = User.new 
+  def edit
+    @users = User.all
+    render :index
   end
+
+  def update
+    if @user.update(user_params)
+      redirect_to users_path, notice: "User updated successfully!"
+    else
+      @users = User.all
+      render :index, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @user.destroy!
+    redirect_to users_path, notice: "User deleted successfully!", status: :see_other
+  end
+
 
   private 
 

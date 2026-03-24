@@ -17,6 +17,15 @@
                         <p class="text-gray-600 mb-1"><strong>CPF:</strong> <%= user.cpf %></p>
                         <p class="text-gray-600 mb-1"><strong>Role:</strong> <%= user.role %></p>
                         <p class="text-gray-600"><strong>Salary:</strong> $<%= number_to_currency(user.salary, unit: "", precision: 2) %></p>
+                        <div class="flex gap-2 mt-3">
+                            <button 
+                            type="button" 
+                            onclick='openEditModal(<%= user.to_json.html_safe %>)'
+                            class="text-blue-500 hover:text-blue-700 font-medium">
+                            Edit
+                            </button>
+                            <%= button_to "Delete", user_path(user), method: :delete, data: { confirm: "Are you sure?" }, class: "text-red-500 hover:text-red-700 font-medium" %>
+                        </div>
                     </div>
                 <%end%>
             </div>
@@ -27,6 +36,7 @@
 
 
     <%= render "user_modal" %>
+    <%= javascript_importmap_tags %>
 
     <script> 
 
@@ -37,6 +47,37 @@
             const form = modal.querySelector("form");
             form.reset();
         }
+
+
+        function openEditModal(user) {
+        const modal = document.getElementById("userModal");
+        modal.classList.remove("hidden");
+
+        const form = modal.querySelector("form");
+
+        // Preencher campos com os dados do usuário
+        form.querySelector("input[name='user[name]']").value = user.name || "";
+        form.querySelector("input[name='user[email]']").value = user.email || "";
+        form.querySelector("input[name='user[cpf]']").value = user.cpf || "";
+        form.querySelector("input[name='user[role]']").value = user.role || "";
+        form.querySelector("input[name='user[salary]']").value = user.salary || "";
+
+        // Alterar a ação do form para PATCH
+        form.action = `/users/${user.id}`;
+
+        // Adicionar input _method para PATCH
+        if (!form.querySelector("input[name='_method']")) {
+            const methodInput = document.createElement("input");
+            methodInput.type = "hidden";
+            methodInput.name = "_method";
+            methodInput.value = "patch";
+            form.appendChild(methodInput);
+        }
+
+        // Alterar texto do botão
+        form.querySelector("input[type='submit']").value = "Update User";
+        }
+
     </script>
 </div>
 
