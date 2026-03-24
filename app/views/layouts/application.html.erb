@@ -1,29 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "App" %></title>
+    <title><%= content_for(:title) || "App Admin" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="App">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <%= yield :head %>
-
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="bg-gray-50 text-gray-800 font-sans antialiased overflow-hidden flex h-screen">
+
     <div id="flash-messages" class="fixed top-5 right-5 z-50 space-y-2">
       <% flash.each do |type, message| %>
         <% bg_color = case type.to_sym
@@ -32,15 +19,133 @@
           when :error  then "bg-red-500"
           else "bg-blue-500"
           end %>
-
-        <div class="<%= bg_color %> text-white px-4 py-2 rounded shadow-md flex items-center justify-between animate-fade-in">
+        <div class="<%= bg_color %> text-white px-4 py-3 rounded shadow-lg flex items-center justify-between transition-opacity duration-300">
           <span><%= message %></span>
-          <button onclick="this.parentElement.remove()" class="ml-2 font-bold">✕</button>
+          <button onclick="this.parentElement.remove()" class="ml-4 font-bold hover:text-gray-200">✕</button>
         </div>
       <% end %>
     </div>
-    <main class="container bg-gray-50 flex">
-      <%= yield %>
-    </main>
+
+    <div id="sidebarOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-20 hidden lg:hidden transition-opacity"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-xl transform -translate-x-full transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col">
+      
+      <div class="flex items-center justify-between h-16 px-4 border-b">
+        <h2 id="sidebarLogo" class="text-2xl font-bold text-green-600 whitespace-nowrap transition-all duration-300 overflow-hidden">
+          Admin
+        </h2>
+        
+        <button id="toggleDesktop" class="hidden lg:block text-gray-400 hover:text-green-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+          </svg>
+        </button>
+
+        <button id="closeMobile" class="lg:hidden text-gray-400 hover:text-gray-700 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="flex-1 px-3 py-4 space-y-2 overflow-y-auto">
+        <%= link_to root_path, class: "flex items-center px-3 py-2.5 rounded-lg hover:bg-green-50 text-gray-700 hover:text-green-600 transition-colors group" do %>
+          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+          <span class="ml-3 font-medium whitespace-nowrap transition-all duration-300 sidebar-text">Home</span>
+        <% end %>
+
+        <%= link_to users_path, class: "flex items-center px-3 py-2.5 rounded-lg hover:bg-green-50 text-gray-700 hover:text-green-600 transition-colors group" do %>
+          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <span class="ml-3 font-medium whitespace-nowrap transition-all duration-300 sidebar-text">Users</span>
+        <% end %>
+
+        <%= link_to posts_path, class: "flex items-center px-3 py-2.5 rounded-lg hover:bg-green-50 text-gray-700 hover:text-green-600 transition-colors group" do %>
+          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+          <span class="ml-3 font-medium whitespace-nowrap transition-all duration-300 sidebar-text">Posts</span>
+        <% end %>
+      </nav>
+
+      <div class="p-4 border-t transition-all duration-300 overflow-hidden sidebar-text">
+        <div class="text-xs text-gray-400 font-medium">
+          &copy; <%= Time.now.year %> Meu App
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      
+      <header class="lg:hidden bg-white shadow-sm flex items-center h-16 px-4 justify-between border-b">
+        <div class="flex items-center">
+          <button id="openMobile" class="text-gray-500 hover:text-green-600 focus:outline-none transition-colors">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          <span class="ml-4 text-xl font-bold text-green-600">Admin</span>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50 p-6 lg:p-10">
+        <div class="max-w-7xl mx-auto">
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      document.addEventListener("turbo:load", function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleDesktopBtn = document.getElementById('toggleDesktop');
+        const openMobileBtn = document.getElementById('openMobile');
+        const closeMobileBtn = document.getElementById('closeMobile');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+        const sidebarLogo = document.getElementById('sidebarLogo');
+        let isCollapsed = false;
+
+        // Função: Colapsar/Expandir no Desktop
+        toggleDesktopBtn.addEventListener('click', () => {
+          isCollapsed = !isCollapsed;
+          
+          if (isCollapsed) {
+            // Estado Colapsado
+            sidebar.classList.remove('w-64');
+            sidebar.classList.add('w-20');
+            sidebarLogo.classList.add('opacity-0', 'w-0');
+            toggleDesktopBtn.innerHTML = '<svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>';
+            
+            sidebarTexts.forEach(el => {
+              el.classList.add('opacity-0', 'w-0', 'invisible');
+            });
+          } else {
+            // Estado Expandido
+            sidebar.classList.remove('w-20');
+            sidebar.classList.add('w-64');
+            sidebarLogo.classList.remove('opacity-0', 'w-0');
+            toggleDesktopBtn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>';
+            
+            sidebarTexts.forEach(el => {
+              el.classList.remove('opacity-0', 'w-0', 'invisible');
+            });
+          }
+        });
+
+        // Funções: Abrir/Fechar no Mobile
+        const openMobile = () => {
+          sidebar.classList.remove('-translate-x-full');
+          overlay.classList.remove('hidden');
+        };
+
+        const closeMobile = () => {
+          sidebar.classList.add('-translate-x-full');
+          overlay.classList.add('hidden');
+        };
+
+        openMobileBtn.addEventListener('click', openMobile);
+        closeMobileBtn.addEventListener('click', closeMobile);
+        overlay.addEventListener('click', closeMobile);
+      });
+    </script>
   </body>
 </html>

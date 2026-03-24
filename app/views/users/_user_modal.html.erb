@@ -1,94 +1,100 @@
+<%# Estilos Reutilizáveis %>
+<% label_style = "block text-sm font-semibold text-gray-700 mb-1" %>
+<% input_style = "w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 sm:text-sm" %>
 
-<!-- STYLES-->
-<% label_style = "text-md font-semibold text-gray-700" %>
+<div id="userModal" 
+     class="<%= @user && @user.errors.any? ? '' : 'hidden' %> fixed inset-0 h-full w-full" 
+     style="z-index: 9999;"
+     role="dialog" 
+     aria-modal="true">
+  
+  <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="handleCloseModal()"></div>
 
-<% input_style = "w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                transition duration-200" %>
-
-
-<div id="userModal" class="<%= @user && @user.errors.any? ? '' : 'hidden' %> fixed inset-0 flex items-center justify-center bg-black/50  backdrop-blur-sm">
-  <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6 relative">
-    <button 
-      onclick="handleCloseModal()" 
-      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
-    >
-      ✕
-    </button>
-
-    <h2 class="text-2xl font-bold mb-4">User</h2>
-
-    <% if @user && @user.errors.any? %>
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        <h2 class="font-bold mb-2">
-        <%= pluralize(@user.errors.count, "erro") %> impediram o salvamento:
-        </h2>
-        <ul class="list-disc pl-5">
-        <% @user.errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
-        <% end %>
-        </ul>
-    </div>
-    <% end %>
-
-    <%= form_with model: @user, local: true do |f| %>
-
-        <div class="flex flex-col gap-3">
-            <div class="flex flex-col gap-1">
-                <%= f.label :name, "Nome", class: label_style %>
-                <%= f.text_field :name,
-                    class: input_style %>
-            </div>
-
-             <div class="flex flex-col gap-1">
-                <%= f.label :email, "Email", class: label_style %>
-                <%= f.email_field :email,
-                    placeholder: "ex: usuariosistema@gmail.com",
-                    class: input_style %>
-            </div>
-
-            <div class="flex flex-col gap-1">
-                <%= f.label :cpf, "CPF", class: label_style %>
-                <%= f.text_field :cpf,
-                    placeholder: "ex: 123.456.789-00",
-                    class: input_style %>
-            </div>
-
-            <div class="flex flex-col gap-1">
-                <%= f.label :role, "Role", class: label_style %>
-                <%= f.text_field :role,
-                    placeholder: "ex: admin",
-                    class: input_style %>
-            </div>
-
-            <div class="flex flex-col gap-1">
-                <%= f.label :salary, "Salary", class: label_style %>
-                <%= f.number_field :salary,
-                    placeholder: "ex: 5000.00",
-                    step: "0.01",
-                    class: input_style %>
-            </div>
-
-            <div class="flex justify-end mt-4">
-                <%= f.submit "Create User", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer " %>
-                <button type="button" onclick="handleCloseModal()" class="ml-2 bg-gray-500 hover:bg-gray-700
-                 text-white font-bold py-2 px-4 rounded cursor-pointer">
-                    Cancel
-                </button>
-            </div>
-        </div>
+  <div class="fixed inset-0 z-[10000] overflow-y-auto">
+    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+      
+      <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
         
-    <% end%>
+        <div class="bg-white px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+          <h3 class="text-xl font-bold text-gray-900" id="modal-title">Dados do Usuário</h3>
+          <button onclick="handleCloseModal()" class="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-full transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
 
+        <%= form_with model: @user, local: true, id: "user-form" do |f| %>
+          <div class="px-6 py-6 space-y-4">
+            
+            <% if @user && @user.errors.any? %>
+              <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                <p class="text-sm text-red-700 font-bold">Atenção:</p>
+                <ul class="text-xs text-red-600 list-disc ml-5 mt-1">
+                  <% @user.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <%= f.label :name, "Nome Completo", class: label_style %>
+                <%= f.text_field :name, class: input_style, placeholder: "Ex: João Silva" %>
+              </div>
+
+              <div>
+                <%= f.label :email, "E-mail", class: label_style %>
+                <%= f.email_field :email, class: input_style, placeholder: "email@exemplo.com" %>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <%= f.label :cpf, "CPF", class: label_style %>
+                  <%= f.text_field :cpf, class: input_style, placeholder: "000.000.000-00", id: "cpf_input" %>
+                </div>
+                <div>
+                  <%= f.label :role, "Cargo", class: label_style %>
+                  <%= f.text_field :role, class: input_style, placeholder: "Ex: Admin" %>
+                </div>
+              </div>
+
+              <div>
+                <%= f.label :salary, "Salário (R$)", class: label_style %>
+                <%= f.number_field :salary, step: "0.01", class: input_style, placeholder: "0.00" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3">
+            <%= f.submit "Salvar Usuário", 
+                class: "inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-xl text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer transition-all" %>
+            
+            <button type="button" 
+                    onclick="handleCloseModal()" 
+                    class="inline-flex justify-center py-2.5 px-6 border border-gray-300 shadow-sm text-sm font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer transition-all">
+              Cancelar
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>
-<script>
-    function handleCloseModal() {
-      const modal = document.getElementById("userModal");
-            modal.classList.toggle("hidden");
-    }
 
-    function cpfMask(value) {
+<script>
+  // Garante que o modal feche removendo a classe hidden ou adicionando-a
+  function handleCloseModal() {
+    const modal = document.getElementById("userModal");
+    if (modal) {
+      modal.classList.add("hidden");
+    }
+  }
+
+  // Máscara de CPF
+  function cpfMask(value) {
+    if (!value) return "";
     return value
       .replace(/\D/g, '')
       .replace(/(\d{3})(\d)/, '$1.$2')
@@ -96,19 +102,24 @@
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const cpfInput = document.querySelector("input[name='user[cpf]']")
+  // Reinicializa os listeners sempre que o Turbo carregar a página
+  document.addEventListener("turbo:load", () => {
+    const cpfInput = document.getElementById("cpf_input");
+    const form = document.getElementById("user-form");
 
-    cpfInput.addEventListener("input", (e) => {
-      e.target.value = cpfMask(e.target.value)
-    })
-  })
-  
-</script>
+    if (cpfInput) {
+      cpfInput.addEventListener("input", (e) => {
+        e.target.value = cpfMask(e.target.value);
+      });
+    }
 
-<script>
-document.querySelector("form").addEventListener("submit", function () {
-  const cpfInput = document.querySelector("input[name='user[cpf]']")
-  cpfInput.value = cpfInput.value.replace(/\D/g, "")
-})
+    if (form) {
+      form.addEventListener("submit", () => {
+        if (cpfInput) {
+          // Limpa a máscara antes de enviar para o banco de dados
+          cpfInput.value = cpfInput.value.replace(/\D/g, "");
+        }
+      });
+    }
+  });
 </script>
